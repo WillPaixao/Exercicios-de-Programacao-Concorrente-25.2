@@ -1,6 +1,6 @@
 /* Disciplina: Programacao Concorrente */
 /* Prof.: Silvana Rossetto */
-/* Codigo: Comunicação entre threads usando variável compartilhada e exclusao mutua com bloqueio */
+/* Codigo: Implementacao do padrao de concorrencia produtor-consumidor usando condicoes de parada */
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -8,8 +8,8 @@
 
 long int soma = 0; //variavel compartilhada entre as threads
 pthread_mutex_t mutex; //variavel de lock para exclusao mutua
-pthread_cond_t condSoma, condLog; //variaveis de cond
-int nthreads; //qtde de threads (passada linha de comando)
+pthread_cond_t condSoma, condLog; //variaveis de condicao (para produtores e consumidor)
+int nthreads; //qtde de threads (passada na linha de comando)
 short int logPendente = 0; //flag que indica se ha multiplo pendente para ser impresso
 
 //funcao executada pelas threads
@@ -19,7 +19,7 @@ void *ExecutaTarefa (void *arg) {
 
   for (int i=0; i<100000; i++) {
     pthread_mutex_lock(&mutex);
-    if (logPendente) //se houver multiplo a ser impresso...
+    while (logPendente) //enquanto houver multiplo a ser impresso...
       pthread_cond_wait(&condSoma, &mutex); //bloqueia a thread atual de soma
     soma++;
     if (!(soma%1000)){
