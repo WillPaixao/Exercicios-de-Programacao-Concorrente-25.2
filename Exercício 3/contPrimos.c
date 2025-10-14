@@ -24,7 +24,7 @@ int ehPrimo(long long int n) {
 
 // Corpo do programa da thread produtora
 void* threadProd(void* args){
-  long long int currN = 1;
+  long long int currN = 1; // Inteiro atual a ser adicionado no buffer
   
   // Preenchimento é feito enquanto número atual não ultrapassa o limiar
   while (currN <= N) {
@@ -45,10 +45,10 @@ void* threadProd(void* args){
 
 // Corpo do programa da thread consumidora
 void* threadCons(void* args){
-  static int idxBuffer = 0;
-  static int acabou = 0;
-  long long int numColetado;
-  long long int contPrimos = 0;
+  static int idxBuffer = 0; // Índice atual (global) do próximo inteiro a ser lido no buffer
+  static int acabou = 0; // Flag indicando se a produção já acabou
+  long long int numColetado; // Cópia local do número lido no buffer
+  long long int contPrimos = 0; // Contagem de primos da thread
   long long int* ret;
 
   ret = (long long int*)malloc(sizeof(long long int));
@@ -83,10 +83,8 @@ void* threadCons(void* args){
     sem_post(&mutex);
 
     // Faz operação custosa (verificar se é primo)
-    if (ehPrimo(numColetado)){
-      //printf("\n%lld", numColetado);
+    if (ehPrimo(numColetado))
       contPrimos++;
-    }
   }
 
   *ret = contPrimos;
@@ -95,9 +93,9 @@ void* threadCons(void* args){
 
 int main(int argc, char* argv[]){
 	long long int* contPrimos;
-  long long int totPrimos = 0;
-	long long int maxContPrimos;
-  int threadVencedora;
+  long long int totPrimos = 0; // Contagem total de primos
+	long long int maxContPrimos; // Contagem de primos máxima dentre os consumidores
+  int threadVencedora; // Índice da thread vencedora
 	
 	if (argc < 4){
 	  printf("ERRO: Há argumentos faltantes na chamada do programa!\n"
@@ -147,7 +145,7 @@ int main(int argc, char* argv[]){
   // Capturando threads consumidoras (e assimilando seus retornos)
 	for (int i = 0; i < nCons; i++){
 	  if (pthread_join(tidsCons[i], (void**)&contPrimos)){
-	    printf("ERRO: Impossível capturar thread produtora!\n");
+	    printf("ERRO: Impossível capturar thread consumidora!\n");
 	    exit(EXIT_FAILURE);
 	  }
     if (!contPrimos) // Acontece quando variável de retorno não pôde ser alocada
