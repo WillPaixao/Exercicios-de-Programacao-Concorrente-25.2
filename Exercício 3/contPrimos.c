@@ -94,7 +94,7 @@ void* threadCons(void* args){
 int main(int argc, char* argv[]){
 	long long int* contPrimos;
   long long int totPrimos = 0; // Contagem total de primos
-	long long int maxContPrimos; // Contagem de primos máxima dentre os consumidores
+	long long int maxContPrimos = 0; // Contagem de primos máxima dentre os consumidores
   int threadVencedora; // Índice da thread vencedora
 	
 	if (argc < 4){
